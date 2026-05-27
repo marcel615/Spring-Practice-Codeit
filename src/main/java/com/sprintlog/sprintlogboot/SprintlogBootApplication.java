@@ -4,6 +4,7 @@ import com.sprintlog.sprintlogboot.domain.LectureLog;
 import com.sprintlog.sprintlogboot.domain.PracticeLog;
 import com.sprintlog.sprintlogboot.domain.ReadingLog;
 import com.sprintlog.sprintlogboot.domain.Visibility;
+import com.sprintlog.sprintlogboot.lifecycle.ImportBatch;
 import com.sprintlog.sprintlogboot.printer.ActivityPrinter;
 import com.sprintlog.sprintlogboot.repository.ActivityRepository;
 import com.sprintlog.sprintlogboot.service.ActivityDashboard;
@@ -44,47 +45,32 @@ public class SprintlogBootApplication {
             System.out.println("  SprintLog Boot — Bean 시연");
             System.out.println("==================================================");
 
-            // 1. 우리가 만든 Bean 이 컨테이너에 등록됐는지 확인
+            // 1. DataInitializer 의 @PostConstruct 가 이미 실행됐는지 확인
+            //    (이 메서드 실행 시점엔 이미 샘플 데이터가 있어야 함)
             System.out.println();
-            System.out.println("── 1. com.sprintlog 패키지의 Bean 목록 ──");
-            String[] allBeanNames = context.getBeanDefinitionNames();
-            for (String name : allBeanNames) {
-                Object bean = context.getBean(name);
-                String beanClassName = bean.getClass().getName();
-                if (beanClassName.startsWith("com.sprintlog")) {
-                    System.out.println("  • " + name + " → " + beanClassName);
-                }
-            }
+            System.out.println("── 1. CommandLineRunner 시작 시점의 Repository 상태 ──");
+            System.out.println("  활동 수: " + repository.count() + "개 (← DataInitializer 가 미리 적재)");
 
-            // 2. DI 가 동작하는지 — Repository 에 활동 추가 후 Dashboard 로 출력
+            // 2. Singleton 검증 — 같은 ActivityRepository 를 두 번 꺼내면 동일 인스턴스인가?
             System.out.println();
-            System.out.println("── 2. Repository 에 샘플 활동 3개 추가 ──");
-            repository.add(new LectureLog("Spring IoC 컨테이너", 90, Visibility.PUBLIC, "김강사"));
-            repository.add(new PracticeLog("Bean 등록 실습", 45, Visibility.PUBLIC, 85));
-            repository.add(new ReadingLog("토비의 Spring", 60, Visibility.PRIVATE, "토비의 Spring 3.1"));
-            System.out.println("  총 활동 수: " + repository.count() + "개");
-            System.out.println("  총 학습 시간: " + repository.getTotalMinutes() + "분");
+            System.out.println("── 2. Singleton 검증 — ActivityRepository ──");
+            ActivityRepository repo1 = context.getBean(ActivityRepository.class);
+            ActivityRepository repo2 = context.getBean(ActivityRepository.class);
+            System.out.println("  repo1 == repo2 ? " + (repo1 == repo2));
+            System.out.println("  repo1.hashCode(): " + repo1.hashCode());
+            System.out.println("  repo2.hashCode(): " + repo2.hashCode());
+            System.out.println("  Parameter repo: " + repository.hashCode());
 
-            // 3. Dashboard 의 카테고리별 그룹화
+            // 3. Prototype 검증 — ImportBatch 를 두 번 꺼내면 서로 다른 인스턴스일까?
             System.out.println();
-            System.out.println("── 3. Dashboard.groupByCategory() (TreeMap 정렬) ──");
-            dashboard.groupByCategory().forEach((category, activities) ->
-                    System.out.println("  " + category.getLabel() + ": " + activities.size() + "개"));
-
-            // 4. ReportService 로 전체 출력
-            System.out.println();
-            System.out.println("── 4. ReportService.printAll() (ConsoleActivityPrinter 주입) ──");
-            reportService.printAll();
-
-            // 5. 모든 구현체 한꺼번에 받기
-            System.out.println();
-            System.out.println("주입된 인스턴스 수: " + allPrinters.size());
-            for (ActivityPrinter printer : allPrinters) {
-                System.out.println("  - " + printer.getClass().getSimpleName());
-            }
-
-            // 6. Map<String, 객체>: Bean 이름 + 인스턴스 매핑
-            System.out.println();
+            System.out.println("── 3. Prototype 검증 — ImportBatch ──");
+            ImportBatch batch1 = context.getBean(ImportBatch.class);
+            // 살짝 시간 차이를 두고 두 번째 인스턴스 생성
+            Thread.sleep(10);
+            ImportBatch batch2 = context.getBean(ImportBatch.class);
+            System.out.println("  batch1: " + batch1);
+            System.out.println("  batch2: " + batch2);
+            System.out.println("  batch1 == batch2 ? " + (batch1 == batch2));
 
 
             System.out.println();
