@@ -27,5 +27,12 @@ public class ImportBatch {
         return startedAt;
     }
 
+    @Override
+    public String toString() {
+        return "ImportBatch{" +
+                "batchId='" + batchId + '\'' +
+                ", startedAt=" + startedAt +
+                '}';
+    }
 
 }
