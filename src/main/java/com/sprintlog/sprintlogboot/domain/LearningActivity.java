@@ -2,11 +2,15 @@ package com.sprintlog.sprintlogboot.domain;
 
 
 import com.sprintlog.sprintlogboot.excepion.InvalidActivityException;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+@Getter
+@Setter
 public abstract class LearningActivity implements Serializable {
 
     //이 파일의 클래스 구조가 현재 클래스와 같은지에 대한 버전 키 검사용 필드!
@@ -36,46 +40,6 @@ public abstract class LearningActivity implements Serializable {
         totalObjectCreateCount++;
     }
 
-    //getter, setter
-    public static int getTotalCreateCount(){
-        return totalObjectCreateCount;
-    }
-    public long getId(){
-        return id;
-    }
-    public String getTitle(){
-        return title;
-    }
-    public int getMinutes(){
-        return minutes;
-    }
-    public Visibility getVisibility(){
-        return visibility;
-    }
-    public boolean isPublicActivity(){
-        return visibility == Visibility.PUBLIC;
-    }
-    public ActivityCategory getCategory(){
-        return category;
-    }
-    public Set<String> getTags(){
-        return tags;
-    }
-
-    public void setTitle(String title){
-        validateTitle(title);
-        this.title = title;
-    }
-    public void setMinutes(int minutes){
-        if (minutes <= 0) {
-            System.out.println("잘못된 공부 시간입니다.");
-            return;
-        }
-        this.minutes = minutes;
-    }
-    public void setVisibility(Visibility visibility){
-        this.visibility = visibility;
-    }
     public void addTag(String tag){
         if (tag == null || tag.isBlank())
             throw new InvalidActivityException("태그는 비워둘 수 없습니다.");

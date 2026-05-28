@@ -1,25 +1,18 @@
 package com.sprintlog.sprintlogboot.service;
 
-
 import com.sprintlog.sprintlogboot.domain.ActivityCategory;
 import com.sprintlog.sprintlogboot.domain.LearningActivity;
 import com.sprintlog.sprintlogboot.repository.ActivityRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class ActivityDashboard {
 
     private final ActivityRepository repository;
-
-    @Autowired
-    public ActivityDashboard(ActivityRepository repository) {
-        if (repository == null)
-            throw new IllegalArgumentException("학습 활동 목록 Cant b null");
-        this.repository = repository;
-    }
 
     /**
      * 카테고리별 활동 수를 세어 Summary를 만들자.

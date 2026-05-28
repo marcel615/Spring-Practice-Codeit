@@ -1,5 +1,10 @@
 package com.sprintlog.sprintlogboot.domain;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum ActivityCategory {
 
     //상수
@@ -10,17 +15,6 @@ public enum ActivityCategory {
     //필드
     private final String label;
     private final int reviewThresholdMinutes;
-
-    //ctor
-    ActivityCategory(String label, int reviewThresholdMinutes) {
-        this.label = label;
-        this.reviewThresholdMinutes = reviewThresholdMinutes;
-    }
-
-    //getter
-    public String getLabel() {
-        return label;
-    }
 
     //method
     public boolean isShortStudy(int minutes) {

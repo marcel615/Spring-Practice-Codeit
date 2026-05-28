@@ -1,5 +1,10 @@
 package com.sprintlog.sprintlogboot.domain;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum Visibility {
 
     //상수
@@ -10,19 +15,5 @@ public enum Visibility {
     //필드
     private final String label;
     private final boolean shareable;
-
-    //ctor
-    Visibility(String label, boolean shareable){
-        this.label = label;
-        this.shareable = shareable;
-    }
-
-    //getter
-    public String getLabel() {
-        return label;
-    }
-    public boolean isShareable() {
-        return shareable;
-    }
 
 }
