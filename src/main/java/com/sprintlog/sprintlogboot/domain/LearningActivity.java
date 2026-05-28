@@ -24,11 +24,6 @@ public abstract class LearningActivity implements Serializable {
 
     
     //ctor
-    /*
-    public LearningActivity(String title, int minutes){
-        this(title, minutes, Visibility.PUBLIC);
-    }
-    */
     public LearningActivity(String title, int minutes, Visibility visibility, ActivityCategory category){
         validateTitle(title);
         validateMinutes(minutes);
@@ -88,11 +83,6 @@ public abstract class LearningActivity implements Serializable {
         tags.add(tag.trim().toLowerCase());
     }
 
-    //abstract method
-    public abstract String getActivityType();
-    public abstract String getDetailText();
-
-
     //method
     public void extendMinutes(int minutes){
         if (minutes <= 0) {
@@ -118,7 +108,7 @@ public abstract class LearningActivity implements Serializable {
             return false;
         return tags.contains(tag.trim().toLowerCase());
     }
-    // 이 클래스에서만 사용하는 메서드 -> private
+
     private void validateTitle(String title){
         if (title == null || title.isBlank()) {
             throw new InvalidActivityException("학습 제목은 비워둘 수가 없습니다.");

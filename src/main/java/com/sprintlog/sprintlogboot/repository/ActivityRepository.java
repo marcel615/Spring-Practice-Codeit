@@ -5,7 +5,6 @@ import com.sprintlog.sprintlogboot.domain.*;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -20,13 +19,13 @@ public class ActivityRepository {
 
     private final List<LearningActivity> storage = new ArrayList<>();
 
+    //method
     public void add(LearningActivity activity) {
         if (activity == null) {
             throw new IllegalArgumentException("저장할 활동은 null일 수 없습니다.");
         }
         storage.add(activity);
     }
-
     // 저장된 모든 활동을 반환한다.
     public List<LearningActivity> findAll() {
         return Collections.unmodifiableList(storage);
@@ -41,6 +40,10 @@ public class ActivityRepository {
             }
         }
         return result;
+
+//        return storage.stream()
+//                .filter(predicate)
+//                .toList();
     }
 
     // 조건에 맞는 첫 번째 활동을 골라 반환한다.
@@ -51,6 +54,10 @@ public class ActivityRepository {
             }
         }
         return Optional.empty();
+
+//        return storage.stream()
+//                .filter(predicate)
+//                .findFirst();
     }
 
     // 저장한 활동 수를 반환한다.
@@ -65,31 +72,6 @@ public class ActivityRepository {
             total += activity.getMinutes(); // LearningActivity가 LearningActivity의 자식이기 때문에 getMinutes() 호출 가능
         }
         return total;
-    }
-
-    public void saveToBinary(Path binaryPath) throws IOException {
-        Path parent = binaryPath.getParent();
-        if(parent != null) {
-            Files.createDirectories(parent);
-        }
-
-        try (ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(Files.newOutputStream(binaryPath)))) {
-            oos.writeObject(new ArrayList<>(storage));
-        }
-
-    }
-
-    //기존 코드는 static으로 새 객체를 만들어서 리턴했다면,
-    //Spring에서는 ActivityRepository가 컨테이너가 관리하는 단일 Bean이기 때문에
-    //새 객체를 직접 생성하는 게 아닌 기존 Bean에 데이터를 적재하는 패턴이 좀 더 자연스럽다
-    public void loadFromBinary(Path binaryPath) throws IOException, ClassNotFoundException {
-
-        try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(Files.newInputStream(binaryPath)))){
-            List<LearningActivity> list = (List<LearningActivity>) ois.readObject();
-            for (LearningActivity activity : list) {
-                this.add(activity);
-            }
-        }
     }
 
 

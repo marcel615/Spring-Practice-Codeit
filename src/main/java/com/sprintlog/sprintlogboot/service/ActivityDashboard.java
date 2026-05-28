@@ -3,10 +3,8 @@ package com.sprintlog.sprintlogboot.service;
 
 import com.sprintlog.sprintlogboot.domain.ActivityCategory;
 import com.sprintlog.sprintlogboot.domain.LearningActivity;
-import com.sprintlog.sprintlogboot.printer.ActivityPrinter;
 import com.sprintlog.sprintlogboot.repository.ActivityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -92,35 +90,6 @@ public class ActivityDashboard {
 
     }
 
-    /**
-     * 보고서 출력기
-     * 외부 클래스(ActivityDashboard)가 가지고 있는 activity 배열에 접근해야 하기 때문에
-     * static을 붙이지 않은 멤버 내부 클래스로 선언.
-     */
-    public class ReportBuilder {
-
-        //필드
-        private final ActivityPrinter printer;
-
-        //ctor
-        public ReportBuilder(@Qualifier("console") ActivityPrinter printer) {
-            if (printer == null) throw new IllegalArgumentException("printer cannot be null");
-
-            this.printer = printer;
-        }
-
-        public void print(){
-            Summary summary = summarize();  // 외부 클래스의 summarize() 호출
-            System.out.println("── 활동 수: 총 " + summary.getTotalCount()
-                    + "개 (강의 " + summary.getLectureCount()
-                    + " / 실습 " + summary.getPracticeCount()
-                    + " / 독서 " + summary.getReadingCount() + ")");
-
-            for (LearningActivity activity : repository.findAll()) {  // 외부 클래스의 activities 접근
-                printer.print(activity);
-            }
-        }
-    }
     //카테고리별 그룹화 ------------------------
     // 카테고리별로 활동(Log)을 그룹화해서 Map으로 반환
     public Map<ActivityCategory, List<LearningActivity>> groupByCategory(){
