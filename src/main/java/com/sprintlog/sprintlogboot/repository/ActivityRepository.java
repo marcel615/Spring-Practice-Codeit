@@ -75,6 +75,12 @@ public class ActivityRepository {
     }
 
 
+    public void delete(LearningActivity activity) {
+        if (activity == null) {
+            throw new IllegalArgumentException("삭제할 활동은 null일 수 없습니다.");
+        }
+        storage.remove(activity);
+    }
 }
 
 
