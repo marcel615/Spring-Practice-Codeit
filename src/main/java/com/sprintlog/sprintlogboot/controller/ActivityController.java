@@ -104,7 +104,7 @@ public class ActivityController {
         Optional<LearningActivity> activity = repository.findFirst(act -> act.getId() == id);
 
         if (activity.isPresent()) {
-            activity.get().setTitle(request.title());
+            activity.get().changeTitle(request.title());
             activity.get().setVisibility(request.visibility());
 
             return ResponseEntity.ok().body(activity.get());
