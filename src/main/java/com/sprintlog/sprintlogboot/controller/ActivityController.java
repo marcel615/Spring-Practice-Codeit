@@ -3,6 +3,7 @@ package com.sprintlog.sprintlogboot.controller;
 import com.sprintlog.sprintlogboot.domain.*;
 import com.sprintlog.sprintlogboot.dto.request.CreateActivityRequest;
 import com.sprintlog.sprintlogboot.dto.request.UpdateActivityRequest;
+import com.sprintlog.sprintlogboot.excepion.ActivityNotFoundException;
 import com.sprintlog.sprintlogboot.repository.ActivityRepository;
 import com.sprintlog.sprintlogboot.service.ActivityDashboard;
 import jakarta.validation.Valid;
@@ -58,11 +59,10 @@ public class ActivityController {
     // 특정 활동 세부 사항
     @GetMapping("/{id}")
     public ResponseEntity<LearningActivity> getById(@PathVariable Long id) {
-        Optional<LearningActivity> first = repository.findFirst(activity -> activity.getId() == id);
-        if (first.isPresent()) {
-            return ResponseEntity.ok().body(first.get());
-        }
-        return ResponseEntity.notFound().build();
+        LearningActivity first = repository.findFirst(activity -> activity.getId() == id)
+                .orElseThrow(() -> new ActivityNotFoundException(id));
+
+        return ResponseEntity.ok().body(first);
     }
 
     //카테고리별로 그룹화된 활동 목록
@@ -101,36 +101,31 @@ public class ActivityController {
     //대상이 없으면 404, 있으면 제목, 공개여부를 변경하고 200.
     @PatchMapping("/{id}")
     public ResponseEntity<LearningActivity> update(@PathVariable Long id, @Valid @RequestBody UpdateActivityRequest request) {
-        Optional<LearningActivity> activity = repository.findFirst(act -> act.getId() == id);
+        LearningActivity first = repository.findFirst(activity -> activity.getId() == id)
+                .orElseThrow(() -> new ActivityNotFoundException(id));
 
-        if (activity.isPresent()) {
-            activity.get().changeTitle(request.title());
-            activity.get().setVisibility(request.visibility());
-
-            return ResponseEntity.ok().body(activity.get());
-        }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().body(first);
     }
 
 
     //활동 삭제, 성공 시 본문 없이 204 No Content, 대상이 없으면 404.
     @DeleteMapping("/{id}")
     public ResponseEntity<LearningActivity> delete(@PathVariable Long id) {
-        Optional<LearningActivity> activity = repository.findFirst(act -> act.getId() == id);
+        LearningActivity first = repository.findFirst(activity -> activity.getId() == id)
+                .orElseThrow(() -> new ActivityNotFoundException(id));
 
-        if (activity.isPresent()) {
-
-            repository.delete(activity.get());
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        repository.delete(first);
+        return ResponseEntity.noContent().build();
     }
 
     private LearningActivity toActivity(CreateActivityRequest request) {
-        LearningActivity activity = switch (request.type()){
-            case LECTURE -> new LectureLog(request.title(), request.minutes(), request.visibility(), request.instructorName());
-            case READING -> new ReadingLog(request.title(), request.minutes(), request.visibility(), request.bookTitle());
-            case PRACTICE -> new PracticeLog(request.title(), request.minutes(), request.visibility(), request.completionRate());
+        LearningActivity activity = switch (request.type()) {
+            case LECTURE ->
+                    new LectureLog(request.title(), request.minutes(), request.visibility(), request.instructorName());
+            case READING ->
+                    new ReadingLog(request.title(), request.minutes(), request.visibility(), request.bookTitle());
+            case PRACTICE ->
+                    new PracticeLog(request.title(), request.minutes(), request.visibility(), request.completionRate());
         };
 
         if (request.tags() != null) {
