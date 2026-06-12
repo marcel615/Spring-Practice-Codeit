@@ -2,6 +2,7 @@ package com.sprintlog.sprintlogboot.controller;
 
 import com.sprintlog.sprintlogboot.domain.*;
 import com.sprintlog.sprintlogboot.dto.request.CreateActivityRequest;
+import com.sprintlog.sprintlogboot.dto.request.PagedResponse;
 import com.sprintlog.sprintlogboot.dto.request.UpdateActivityRequest;
 import com.sprintlog.sprintlogboot.excepion.ActivityNotFoundException;
 import com.sprintlog.sprintlogboot.repository.ActivityRepository;
@@ -16,13 +17,12 @@ import java.net.URI;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping({"/api/v1/activities", "/api/activities"}) // 경로를 둘로 받아서 기존의 요청도 해결할 수 있도록.
-public class ActivityController {
+@RequestMapping("/api/v2/activities")
+public class ActivityV2Controller {
 
     private final ActivityRepository repository;
     private final ActivityDashboard activityDashboard;
@@ -35,7 +35,7 @@ public class ActivityController {
 
     // 모든 활동 목록
     @GetMapping()
-    public ResponseEntity<List<LearningActivity>> getAll(
+    public ResponseEntity<PagedResponse<LearningActivity>> getAll(
             @RequestParam(defaultValue = "id") String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -53,7 +53,8 @@ public class ActivityController {
                 .limit(size)
                 .toList();
 
-        return ResponseEntity.ok().body(list);
+        PagedResponse<LearningActivity> resDTO = new PagedResponse<>(list, page, size, list.size());
+        return ResponseEntity.ok().body(resDTO);
     }
 
     // 특정 활동 세부 사항
@@ -83,12 +84,7 @@ public class ActivityController {
                                                               @RequestParam String name,
                                                               @RequestParam int age) {
 
-        return ResponseEntity.ok()
-                .header("Deprecation", "true")
-                .header("Sunset", "Thu, 31 Dec 2026 23:59:59 GMT")
-                .header("Link",
-                        "<https://docs.sprintlog.example/guides/migration#search>; rel=\"deprecation\"")
-                .body(activityDashboard.filterByTag(tag));
+        return ResponseEntity.ok().body(activityDashboard.filterByTag(tag));
     }
 
     // 변경 작업: -- 생성(Post) / 수정(Put) / 삭제(Delete) --
