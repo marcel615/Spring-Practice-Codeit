@@ -35,6 +35,9 @@ dependencies {
 
     // Swagger/OpenAPI 추가
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+
+    // 응답에 _links(자기 자신 연관 리소스로 가는 링크)를 붙여주는 HATEOAS 라이브러리
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
 }
 
 tasks.named('test') {
