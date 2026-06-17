@@ -1,4 +1,4 @@
-package com.sprintlog.sprintlogboot.excepion;
+package com.sprintlog.sprintlogboot.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

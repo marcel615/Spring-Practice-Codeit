@@ -4,28 +4,32 @@ package com.sprintlog.sprintlogboot.repository;
 import com.sprintlog.sprintlogboot.domain.*;
 import org.springframework.stereotype.Repository;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-
-@Repository
+@Repository // 이 클래스는 Repository 역할을 하는 클래스고, Bean으로 등록해 줘.
 public class ActivityRepository {
 
     private final List<LearningActivity> storage = new ArrayList<>();
 
-    //method
     public void add(LearningActivity activity) {
         if (activity == null) {
             throw new IllegalArgumentException("저장할 활동은 null일 수 없습니다.");
         }
         storage.add(activity);
     }
+
+    public void update(LearningActivity activity) {
+        if (activity == null) {
+            throw new IllegalArgumentException("수정할 활동은 null일 수 없습니다.");
+        }
+        storage.remove(activity);
+        storage.add(activity);
+    }
+
     // 저장된 모든 활동을 반환한다.
     public List<LearningActivity> findAll() {
         return Collections.unmodifiableList(storage);
@@ -40,10 +44,6 @@ public class ActivityRepository {
             }
         }
         return result;
-
-//        return storage.stream()
-//                .filter(predicate)
-//                .toList();
     }
 
     // 조건에 맞는 첫 번째 활동을 골라 반환한다.
@@ -54,10 +54,6 @@ public class ActivityRepository {
             }
         }
         return Optional.empty();
-
-//        return storage.stream()
-//                .filter(predicate)
-//                .findFirst();
     }
 
     // 저장한 활동 수를 반환한다.
@@ -74,23 +70,8 @@ public class ActivityRepository {
         return total;
     }
 
-
-    public void delete(LearningActivity activity) {
-        if (activity == null) {
-            throw new IllegalArgumentException("삭제할 활동은 null일 수 없습니다.");
-        }
-        storage.remove(activity);
+    // removeIf: 조건에 맞는 객체를 리스트에서 삭제 후 true 리턴, 해당 id를 가진 활동이 없다면 false를 리턴
+    public boolean removeById(Long id) {
+        return storage.removeIf(activity -> activity.getId() == id);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-

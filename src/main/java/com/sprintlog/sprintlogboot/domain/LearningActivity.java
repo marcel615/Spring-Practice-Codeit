@@ -1,7 +1,7 @@
 package com.sprintlog.sprintlogboot.domain;
 
 
-import com.sprintlog.sprintlogboot.excepion.InvalidActivityException;
+import com.sprintlog.sprintlogboot.exception.InvalidActivityException;
 import lombok.Getter;
 import lombok.Setter;
 

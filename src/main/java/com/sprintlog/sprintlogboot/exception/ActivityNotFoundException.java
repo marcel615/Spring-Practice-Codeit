@@ -1,4 +1,4 @@
-package com.sprintlog.sprintlogboot.excepion;
+package com.sprintlog.sprintlogboot.exception;
 
 public class ActivityNotFoundException extends RuntimeException {
 

@@ -4,7 +4,7 @@ import com.sprintlog.sprintlogboot.domain.*;
 import com.sprintlog.sprintlogboot.dto.request.CreateActivityRequest;
 import com.sprintlog.sprintlogboot.dto.request.PagedResponse;
 import com.sprintlog.sprintlogboot.dto.request.UpdateActivityRequest;
-import com.sprintlog.sprintlogboot.excepion.ActivityNotFoundException;
+import com.sprintlog.sprintlogboot.exception.ActivityNotFoundException;
 import com.sprintlog.sprintlogboot.repository.ActivityRepository;
 import com.sprintlog.sprintlogboot.service.ActivityDashboard;
 import jakarta.validation.Valid;
