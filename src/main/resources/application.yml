@@ -18,10 +18,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create  #엔티티 클래스를 보고 CREATE, ALTER를 자동으로 만들어서 DB에 적용
-    show-sql: true #실행되는 SQL을 콘솔에 보여준다
-    properties:
-      hibernate:
-        format_sql: true  #SQL을 보기 좋게 들여쓰기
+#    show-sql: true #실행되는 SQL을 콘솔에 보여준다
+#    properties:
+#      hibernate:
+#        format_sql: true  #SQL을 보기 좋게 들여쓰기
 
 
   profiles:
@@ -50,5 +50,5 @@ sprintlog:
 logging:
   level:
     com.sprintlog: debug  #hibernate가 실제로 완성하는 SQL과 7자리에 채워지는 바인딩 값을 함께 보기 위함
-    org.hibernate.sql: debug
-    org.hibernate.orm.jdbc.bind: trace
+#    org.hibernate.sql: debug
+#    org.hibernate.orm.jdbc.bind: trace
