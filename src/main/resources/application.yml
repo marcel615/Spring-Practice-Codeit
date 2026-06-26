@@ -5,6 +5,25 @@ spring:
   application:
     name: sprintlog-boot
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/sprintlog
+    username: sprintlog
+    password: sprintlog
+    driver-class-name: org.postgresql.Driver
+    #내 컴퓨터(localhost)의
+    #5432 포트에 실행 중인 PostgreSQL 서버로 가서
+    #sprintlog 데이터베이스에
+    #sprintlog 계정으로 로그인해라
+
+  jpa:
+    hibernate:
+      ddl-auto: create  #엔티티 클래스를 보고 CREATE, ALTER를 자동으로 만들어서 DB에 적용
+    show-sql: true #실행되는 SQL을 콘솔에 보여준다
+    properties:
+      hibernate:
+        format_sql: true  #SQL을 보기 좋게 들여쓰기
+
+
   profiles:
     active: dev
 
@@ -27,3 +46,9 @@ sprintlog:
   sample-data:
     enabled: true
     count: 4
+
+logging:
+  level:
+    com.sprintlog: debug  #hibernate가 실제로 완성하는 SQL과 7자리에 채워지는 바인딩 값을 함께 보기 위함
+    org.hibernate.sql: debug
+    org.hibernate.orm.jdbc.bind: trace

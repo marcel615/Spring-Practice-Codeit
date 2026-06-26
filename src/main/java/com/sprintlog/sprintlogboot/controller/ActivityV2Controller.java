@@ -18,76 +18,75 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/v2/activities")
 public class ActivityV2Controller {
 
     private final ActivityRepository repository;
-    private final ActivityDashboard activityDashboard;
+    private final ActivityDashboard dashboard;
 
-    @GetMapping("/hello")
-    public String hello() {
-        log.info("hello");
-        return "hello";
-    }
-
-    // 모든 활동 목록
-    @GetMapping()
+    // 모든 활동 목록(페이징)
+    @GetMapping
     public ResponseEntity<PagedResponse<LearningActivity>> getAll(
             @RequestParam(defaultValue = "id") String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) String keyword) {
-
+            @RequestParam(required = false) String keyword
+    ) {
         Comparator<LearningActivity> comparator = switch (sort) {
-            case "minutes" -> Comparator.comparing(LearningActivity::getMinutes);
+            case "minutes" -> Comparator.comparingInt(LearningActivity::getMinutes);
             case "title" -> Comparator.comparing(LearningActivity::getTitle);
             default -> Comparator.comparing(LearningActivity::getId);
         };
 
+
         List<LearningActivity> list = repository.findAll().stream()
                 .sorted(comparator)
-                .skip((long) page * size)
+                .skip((long) page * size) // 0페이지면 0개 건너뛰고 size개, 1페이지면 size개 건너뛰고 size개
                 .limit(size)
                 .toList();
 
-        PagedResponse<LearningActivity> resDTO = new PagedResponse<>(list, page, size, list.size());
-        return ResponseEntity.ok().body(resDTO);
+        // v1과의 차이: 데이터에 더해 page/size/전체 개수를 함께 내려준다.
+        PagedResponse<LearningActivity> resDto = new PagedResponse<>(list, page, size, list.size());
+        return ResponseEntity.ok().body(resDto);
     }
 
-    // 특정 활동 세부 사항
     @GetMapping("/{id}")
     public ResponseEntity<LearningActivity> getById(@PathVariable Long id) {
-        LearningActivity first = repository.findFirst(activity -> activity.getId() == id)
+        LearningActivity activity = repository.findFirst(a -> a.getId() == id)
                 .orElseThrow(() -> new ActivityNotFoundException(id));
-
-        return ResponseEntity.ok().body(first);
+        return ResponseEntity.ok().body(activity);
     }
 
-    //카테고리별로 그룹화된 활동 목록
+    // 카테고리별로 그룹화된 활동 목록
     @GetMapping("/dashboard")
-    public ResponseEntity<Map<ActivityCategory, List<LearningActivity>>> getAllByCategory() {
-        return ResponseEntity.ok().body(activityDashboard.groupByCategory());
+    public ResponseEntity<Map<ActivityCategory, List<LearningActivity>>> getDashboard() {
+        Map<ActivityCategory, List<LearningActivity>> map = dashboard.groupByCategory();
+        return ResponseEntity.ok().body(map);
     }
 
-    //활동 수 요약 정보
+
+    // 활동 수 요약 정보 (전체 / 강의 / 실습 / 독서) -> ActivityDashboard
     @GetMapping("/summary")
     public ResponseEntity<ActivityDashboard.Summary> getSummary() {
-        return ResponseEntity.ok().body(activityDashboard.summarize());
+        return ResponseEntity.ok().body(dashboard.summarize());
     }
 
-    //태그로 활동을 필터링
+    // 태그로 활동을 필터링
     @GetMapping("/search")
     public ResponseEntity<List<LearningActivity>> searchByTag(@RequestParam String tag,
                                                               @RequestParam String name,
                                                               @RequestParam int age) {
 
-        return ResponseEntity.ok().body(activityDashboard.filterByTag(tag));
+        log.info("RequestParam을 통해 얻어낸 값: {}, {}, {}", tag, name, age);
+
+        List<LearningActivity> list = dashboard.filterByTag(tag);
+        return ResponseEntity.ok().body(list);
     }
 
-    // 변경 작업: -- 생성(Post) / 수정(Put) / 삭제(Delete) --
+    //  변경 작업: -- 생성(POST) / 수정(PUT) / 삭제(DELETE) ---
     @PostMapping
     public ResponseEntity<LearningActivity> create(@Valid @RequestBody CreateActivityRequest request) {
         LearningActivity activity = toActivity(request);
@@ -98,35 +97,42 @@ public class ActivityV2Controller {
         return ResponseEntity.created(location).body(activity);
     }
 
-    //활동 수정, 자원 식별은 Path(/{id}), 변경할 내용은 본문(UpdateActivityRequest)
-    //대상이 없으면 404, 있으면 제목, 공개여부를 변경하고 200.
+    // 활동 수정. 자원 식별은 Path(/{id}), 변경할 내용은 본문(UpdateActivityRequest)
+    // 대상이 없으면 404, 있으면 제목, 공개여부를 변경하고 200.
     @PutMapping("/{id}")
-    public ResponseEntity<LearningActivity> update(@PathVariable Long id, @Valid @RequestBody UpdateActivityRequest request) {
-        LearningActivity first = repository.findFirst(activity -> activity.getId() == id)
+    public ResponseEntity<LearningActivity> update(@PathVariable Long id,
+                                                   @Valid @RequestBody UpdateActivityRequest request) {
+
+        LearningActivity activity = repository.findFirst(a -> a.getId() == id)
                 .orElseThrow(() -> new ActivityNotFoundException(id));
 
-        return ResponseEntity.ok().body(first);
+        activity.changeTitle(request.title());
+        if (request.visibility() == Visibility.PUBLIC) {
+            activity.openToPublic();
+        } else {
+            activity.hideFromPublic();
+        }
+        repository.update(activity);
+        return ResponseEntity.ok().body(activity);
     }
 
 
-    //활동 삭제, 성공 시 본문 없이 204 No Content, 대상이 없으면 404.
+    // 활동 삭제. 성공 시 본문 없이 204 No Content, 대상이 없으면 404.
     @DeleteMapping("/{id}")
-    public ResponseEntity<LearningActivity> delete(@PathVariable Long id) {
-        LearningActivity first = repository.findFirst(activity -> activity.getId() == id)
-                .orElseThrow(() -> new ActivityNotFoundException(id));
-
-        repository.delete(first);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        if (!repository.removeById(id)) {
+            throw new ActivityNotFoundException(id);
+        }
         return ResponseEntity.noContent().build();
     }
 
+
+
     private LearningActivity toActivity(CreateActivityRequest request) {
         LearningActivity activity = switch (request.type()) {
-            case LECTURE ->
-                    new LectureLog(request.title(), request.minutes(), request.visibility(), request.instructorName());
-            case READING ->
-                    new ReadingLog(request.title(), request.minutes(), request.visibility(), request.bookTitle());
-            case PRACTICE ->
-                    new PracticeLog(request.title(), request.minutes(), request.visibility(), request.completionRate());
+            case LECTURE -> new LectureLog(request.title(), request.minutes(), request.visibility(), request.instructorName());
+            case PRACTICE -> new PracticeLog(request.title(), request.minutes(), request.visibility(), request.completionRate());
+            case READING -> new ReadingLog(request.title(), request.minutes(), request.visibility(), request.bookTitle());
         };
 
         if (request.tags() != null) {
@@ -135,4 +141,5 @@ public class ActivityV2Controller {
 
         return activity;
     }
+
 }
