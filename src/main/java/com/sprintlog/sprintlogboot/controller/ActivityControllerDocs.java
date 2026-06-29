@@ -39,7 +39,10 @@ public interface ActivityControllerDocs {
             @Parameter(description = "페이지 번호(0부터 시작)", example = "0")
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "한 화면에 보여질 데이터 크기", example = "20")
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") int size,
+
+            @Parameter(description = "주인 사용자 id(선택)", example = "1")
+            @RequestParam(required = false) Long ownerId
     );
 
     @Operation(summary = "활동 단건 조회",
@@ -89,8 +92,9 @@ public interface ActivityControllerDocs {
 
     //  변경 작업: -- 생성(POST) / 수정(PUT) / 삭제(DELETE) ---
     @PostMapping
-    public ResponseEntity<EntityModel<ActivityResponse>> create(@Valid @RequestPart(value = "data") CreateActivityRequest request,
-                                                                @RequestPart(value = "file", required = false) MultipartFile file);
+    public ResponseEntity<EntityModel<ActivityResponse>> create(
+            @Valid @RequestPart("data") CreateActivityRequest request,
+            @RequestPart(value = "file", required = false) MultipartFile file);
 
     // 활동 수정. 자원 식별은 Path(/{id}), 변경할 내용은 본문(UpdateActivityRequest)
     // 대상이 없으면 404, 있으면 제목, 공개여부를 변경하고 200.
