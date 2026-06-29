@@ -20,22 +20,7 @@ public record ActivityResponse(
         String bookTitle             // READING 전용
 ) {
 
-    /**
-     * 도메인 엔티티 → 응답 DTO 로 변환하는 정적 팩토리.
-     * 어떤 하위 타입인지에 따라(패턴 매칭) 그 타입만의 필드를 추가로 채운다.
-     */
     public static ActivityResponse from(LearningActivity activity) {
-        String instructorName = null;
-        Integer completionRate = null;
-        String bookTitle = null;
-
-        if (activity instanceof LectureLog lecture) {
-            instructorName = lecture.getInstructorName();
-        } else if (activity instanceof PracticeLog practice) {
-            completionRate = practice.getCompletionRate();
-        } else if (activity instanceof ReadingLog reading) {
-            bookTitle = reading.getBookTitle();
-        }
 
         return new ActivityResponse(
                 activity.getId(),
@@ -44,8 +29,9 @@ public record ActivityResponse(
                 activity.getMinutes(),
                 activity.getVisibility(),
                 activity.getTags(),
-                instructorName,
-                completionRate,
-                bookTitle);
+                activity.getInstructorName(),
+                activity.getCompletionRate(),
+                activity.getBookTitle()
+        );
     }
 }
