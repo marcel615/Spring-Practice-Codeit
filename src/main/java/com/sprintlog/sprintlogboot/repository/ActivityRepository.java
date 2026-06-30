@@ -6,6 +6,7 @@ import com.sprintlog.sprintlogboot.domain.Visibility;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -74,5 +75,14 @@ public interface ActivityRepository extends JpaRepository<LearningActivity, Long
     @Modifying // SELECT 아니면 무조건 붙여야 합니다! JPQL은 기본 SELECT를 기반으로 동작합니다.
     @Query("DELETE FROM LearningActivity a WHERE a.title = ?1 AND a.category = ?2")
     void deleteByTitleAndCategoryWithJPQL(String title, ActivityCategory category);
+
+    // 연관은 기본을 LAZY 로딩으로 두고, 정말 필요한 조회에서만 FETCH JOIN이나 EntityGraph를 사용해서
+    // 조인 결과를 함께 들고오는 방식을 선호.
+    @Query("SELECT a FROM LearningActivity a LEFT JOIN FETCH a.owner LEFT JOIN FETCH a.tags")
+    List<LearningActivity> findAllFetchJoin();
+
+    @EntityGraph(attributePaths = {"owner", "tags"})
+    @Query("SELECT a FROM LearningActivity a")
+    List<LearningActivity> findAllWithDetails();
 
 }
