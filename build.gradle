@@ -33,6 +33,9 @@ dependencies {
     // H2 인메모리 데이터베이스 (테스트 전용 DB)
     runtimeOnly 'com.h2database:h2'
 
+    // Actuator - 애플리케이션 모니터링(상태, 정보, 지표)
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
     // [신규] Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
