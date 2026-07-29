@@ -1,11 +1,24 @@
-# 개발 환경 (dev profile) 추가 설정
-# application.yml의 값들을 덮어쓰거나 보강
+# 운영 환경 (dev profile) 추가 설정: 컨테이너/클라우드 배포용 외부 설정
+# ${환경변수:기본값}: 환경변수가 있으면 그 값, 없으면 콜론 뒤의 기본값으로 설정
+
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://db:5432/sprintlog}
+    username: ${SPRINT_DATASOURCE_USERNAME:postgres}
+    password: ${SPRINT_DATASOURCE_PASSWORD:secret}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      # ddl-auto=update: 엔티티에 맞춰 테이블을 자동 생성/보강(개발 편의). 운영(prod)에서는 validate 로 막는다.
+      ddl-auto: ${JPA_DDL_AUTO:validate}
 
 sprintlog:
   welcome-message: "SprintLog Boot - PRODUCTION (운영 환경)"
   sample-data:
     enabled: false
     count: 4
+  file-directory: ${SPRINTLOG_FILE_DIR:/app/uploads}
 
 # 개발 시에는 자세한 로그가 도움됨.
 logging:

@@ -64,6 +64,11 @@ management:
   endpoint:
     health:
       show-details: always # 개발 환경에서는 always, 운영에서는 when-authorized(허가된 사람만 요청 가능하도록)
+
+  info:
+    env:
+      enabled: true
+
   server:
     port: 9090 # Actuator 전용 포트 (방화벽 같은데에서 Actuator는 허용된 ip만 접근이 가능하도록 막음)
 
