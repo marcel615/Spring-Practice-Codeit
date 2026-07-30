@@ -1,5 +1,5 @@
 # ------1. build 스테이지
-FROM eclipse-temurin:17-jdk-alpine AS build
+FROM eclipse-temurin:17-jdk AS build
 WORKDIR /workspace
 
 # 의존성 먼저: 빌드 스크립트/래퍼만 복사해 의존성 다운로드를 캐시 레이어로 고정
@@ -9,10 +9,10 @@ RUN chmod +x gradlew && ./gradlew dependencies --no-daemon
 
 # 소스 복사 후 실행 가능 jar 빌드 (테스트는 CI 에서, 이미지 빌드에선 제외)
 COPY src ./src
-RUN ./gradlew clean build -x test
+RUN ./gradlew bootJar -x test
 
 # ---- ② run 스테이지 ----
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
@@ -21,7 +21,6 @@ COPY --from=build /workspace/build/libs/sprintlog-boot-0.0.1-SNAPSHOT.jar app.ja
 
 # 타임존 설정
 ENV TZ=Asia/Seoul
-RUN apk add --no-cache tzdata
 
 ENV SPRING_PROFILES_ACTIVE=prod
 
