@@ -90,6 +90,13 @@ sprintlog:
     count: 4
   file-directory: C:\Users\alswo\Desktop\codeit-13th-develop\sprintlog-boot\files
 
+  storage: local  # local or s3
+  s3:
+    bucket: sprintlog-uploads-minjae-5895
+    region: ap-northeast-2
+    endpoint:
+    presign-minutes: 5
+
 logging:
   level:
     com.sprintlog: debug  #hibernate가 실제로 완성하는 SQL과 7자리에 채워지는 바인딩 값을 함께 보기 위함
