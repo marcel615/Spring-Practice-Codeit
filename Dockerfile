@@ -30,4 +30,4 @@ EXPOSE 8080 9090
 HEALTHCHECK --interval=15s --timeout=3s --start-period=60s --retries=5 \
   CMD curl -fsS http://localhost:9090/management/health || exit 1
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

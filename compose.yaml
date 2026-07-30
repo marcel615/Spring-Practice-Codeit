@@ -1,0 +1,66 @@
+
+services:
+
+  #PostgreSQL 데이터베이스 컨테이너
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_DB=sprintlog
+      - POSTGRES_PASSWORD=secret
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sprintlog"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks:
+      - app-network
+
+  #SprintLog 앱 컨테이너
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/sprintlog  #db = 서비스 이름
+      - SPRING_DATASOURCE_PASSWORD=secret
+      - JPA_DDL_AUTO=update
+      #JVM 메모리 설정
+      - JAVA_OPTS=-Xmx400m -Xms200m
+    depends_on:
+      db:
+        condition: service_healthy  # db가 준비된 뒤에 앱 시작 (순서 지정)
+      redis:
+        condition: service_started
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 100mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - app-network
+
+volumes:
+  pgdata:
+    driver: local #볼륨 데이터를 호스트의 로컬에 저장하겠다.
+  redis-data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
