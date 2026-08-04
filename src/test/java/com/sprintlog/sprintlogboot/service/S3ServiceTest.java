@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("S3Service 테스트 (S3Mock)")
 class S3ServiceTest {
 
-    static final String BUCKET = "sprintlog-uploads-8917";
+    static final String BUCKET = "sprintlog-uploads-minjae-5895";
 
     static S3MockContainer s3Mock; // 진짜 S3처럼 행동하는 로컬 서버 컨테이너
     static S3Service s3Service;
